@@ -42,6 +42,17 @@ class NotificationService {
     return `${billId}-${reminder.offsetDays}`;
   }
 
+  async cancelAllReminders() {
+    const notifications = await notifee.getTriggerNotifications();
+    const idsToCancel = notifications
+      .map((entry) => entry.notification.id)
+      .filter((id): id is string => Boolean(id));
+
+    if (idsToCancel.length > 0) {
+      await notifee.cancelTriggerNotifications(idsToCancel);
+    }
+  }
+
   async cancelRemindersForBill(billId: string) {
     const notifications = await notifee.getTriggerNotifications();
 
@@ -58,6 +69,10 @@ class NotificationService {
   async scheduleBillReminders(bill: Bill) {
     if (!this.ready) {
       await this.initialize();
+    }
+
+    if (!this.ready) {
+      return;
     }
 
     await this.cancelRemindersForBill(bill.id);

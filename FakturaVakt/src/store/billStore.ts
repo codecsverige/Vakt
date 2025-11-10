@@ -7,6 +7,15 @@ import { notificationService } from '../services/notificationService';
 import { zustandStorage } from '../services/storage';
 import { calculateBillStatus, getNextOccurrence } from '../utils/dates';
 import { DEFAULT_CURRENCY, DEFAULT_REMINDER_OFFSETS } from '../utils/constants';
+import { useSettingsStore } from './settingsStore';
+
+const scheduleRemindersIfEnabled = (bill: Bill) => {
+  if (!useSettingsStore.getState().notificationsEnabled) {
+    return;
+  }
+
+  notificationService.scheduleBillReminders(bill).catch(() => undefined);
+};
 
 export interface Metrics {
   currentMonthTotal: number;
@@ -89,7 +98,7 @@ export const useBillStore = create<BillState>()(
             bills: [...state.bills, bill],
           }));
 
-          notificationService.scheduleBillReminders(bill).catch(() => undefined);
+          scheduleRemindersIfEnabled(bill);
 
           return bill;
         },
@@ -119,7 +128,7 @@ export const useBillStore = create<BillState>()(
           });
 
           if (updatedBill) {
-            notificationService.scheduleBillReminders(updatedBill).catch(() => undefined);
+            scheduleRemindersIfEnabled(updatedBill);
           }
 
           return updatedBill;
@@ -204,13 +213,17 @@ export const useBillStore = create<BillState>()(
           const updated = get().bills.find((bill) => bill.id === billId);
 
           if (updated) {
-            notificationService.scheduleBillReminders(updated).catch(() => undefined);
+            scheduleRemindersIfEnabled(updated);
           }
         },
         refreshNotifications: async () => {
           const bills = get().bills;
 
-          await Promise.all(bills.map((bill) => notificationService.scheduleBillReminders(bill)));
+          if (!useSettingsStore.getState().notificationsEnabled) {
+            return;
+          }
+
+          await Promise.all(bills.map((bill) => notificationService.scheduleBillReminders(bill).catch(() => undefined)));
         },
         metrics: () => {
           const bills = get().bills;
