@@ -3,7 +3,7 @@ import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } f
 import { useTranslation } from 'react-i18next';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LanguageToggle from '../components/LanguageToggle';
-import { useSettingsStore } from '../store';
+import { useBillStore, useFamilyStore, useSettingsStore } from '../store';
 import { useTheme } from '../theme';
 import { DEFAULT_REMINDER_OFFSETS } from '../utils/constants';
 import { notificationService } from '../services/notificationService';
@@ -23,6 +23,8 @@ const SettingsScreen: React.FC = () => {
     premiumEnabled,
     togglePremium,
   } = useSettingsStore();
+  const refreshNotifications = useBillStore((state) => state.refreshNotifications);
+  const refreshFamilyReminders = useFamilyStore((state) => state.refreshReminders);
   const primaryTextColor = React.useMemo(() => ({ color: theme.colors.text }), [theme.colors.text]);
   const secondaryTextColor = React.useMemo(
     () => ({ color: theme.colors.textSecondary }),
@@ -35,8 +37,18 @@ const SettingsScreen: React.FC = () => {
     if (value) {
       try {
         await notificationService.initialize();
+        await refreshNotifications();
+        await refreshFamilyReminders();
       } catch (error) {
+        setNotificationsEnabled(false);
         Alert.alert('Notifications', 'Unable to enable notifications: ' + (error as Error).message);
+      }
+    } else {
+      try {
+        await notificationService.cancelAllReminders();
+      } catch (error) {
+        setNotificationsEnabled(true);
+        Alert.alert('Notifications', 'Unable to disable notifications: ' + (error as Error).message);
       }
     }
   };

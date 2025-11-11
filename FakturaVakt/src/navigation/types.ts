@@ -3,6 +3,7 @@ export type MainTabsParamList = {
   Dashboard: undefined;
   Archive: undefined;
   Settings: undefined;
+  FamilyCare: undefined;
 };
 
 import type { BillInput } from '../types';
