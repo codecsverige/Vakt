@@ -10,6 +10,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import UpcomingScreen from '../screens/UpcomingScreen';
 import ArchiveScreen from '../screens/ArchiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import FamilyCareScreen from '../screens/FamilyCareScreen';
 import BillFormScreen from '../screens/BillFormScreen';
 import QRScannerScreen from '../screens/QRScannerScreen';
 import PaymentExtensionScreen from '../screens/PaymentExtensionScreen';
@@ -22,6 +23,7 @@ const TAB_ICON_MAP: Record<keyof MainTabsParamList, { active: string; inactive: 
   Upcoming: { active: 'calendar', inactive: 'calendar-outline' },
   Dashboard: { active: 'analytics', inactive: 'analytics-outline' },
   Archive: { active: 'archive', inactive: 'archive-outline' },
+  FamilyCare: { active: 'people', inactive: 'people-outline' },
   Settings: { active: 'settings', inactive: 'settings-outline' },
 };
 
@@ -53,13 +55,14 @@ const MainTabsNavigator = () => {
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarIcon: ({ color, focused, size }) =>
           renderTabIcon(route.name as keyof MainTabsParamList, focused, color, size),
-      })}
-    >
-      <Tabs.Screen name="Upcoming" component={UpcomingScreen} options={{ title: t('nav.upcoming') }} />
-      <Tabs.Screen name="Dashboard" component={DashboardScreen} options={{ title: t('nav.dashboard') }} />
-      <Tabs.Screen name="Archive" component={ArchiveScreen} options={{ title: t('nav.archive') }} />
-      <Tabs.Screen name="Settings" component={SettingsScreen} options={{ title: t('nav.settings') }} />
-    </Tabs.Navigator>
+        })}
+      >
+        <Tabs.Screen name="Upcoming" component={UpcomingScreen} options={{ title: t('nav.upcoming') }} />
+        <Tabs.Screen name="Dashboard" component={DashboardScreen} options={{ title: t('nav.dashboard') }} />
+        <Tabs.Screen name="Archive" component={ArchiveScreen} options={{ title: t('nav.archive') }} />
+        <Tabs.Screen name="FamilyCare" component={FamilyCareScreen} options={{ title: t('nav.family') }} />
+        <Tabs.Screen name="Settings" component={SettingsScreen} options={{ title: t('nav.settings') }} />
+      </Tabs.Navigator>
   );
 };
 
