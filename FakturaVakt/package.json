@@ -7,7 +7,10 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "build:android": "./build-apk.sh",
+    "build:android:clean": "cd android && ./gradlew clean && cd ..",
+    "build:android:release": "cd android && ./gradlew assembleRelease && cd .."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
