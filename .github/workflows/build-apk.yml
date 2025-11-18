@@ -1,0 +1,137 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'cursor/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v0.0.3)'
+        required: false
+        default: 'latest'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: FakturaVakt/package-lock.json
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Install dependencies
+        working-directory: FakturaVakt
+        run: npm ci --legacy-peer-deps
+      
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      
+      - name: Make gradlew executable
+        working-directory: FakturaVakt/android
+        run: chmod +x ./gradlew
+      
+      - name: Build Release APK
+        working-directory: FakturaVakt/android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+      
+      - name: Sign APK (optional - using debug keystore)
+        working-directory: FakturaVakt/android
+        run: |
+          echo "APK built with debug keystore"
+          ls -lh app/build/outputs/apk/release/
+      
+      - name: Rename APK
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [ "$VERSION" == "" ] || [ "$VERSION" == "latest" ]; then
+            VERSION="v0.0.3-$(date +%Y%m%d)"
+          fi
+          mv FakturaVakt/android/app/build/outputs/apk/release/app-release.apk \
+             FakturaVakt-${VERSION}.apk
+      
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FakturaVakt-APK
+          path: FakturaVakt-*.apk
+          retention-days: 30
+      
+      - name: Create Release
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: FakturaVakt-*.apk
+          tag_name: ${{ github.event.inputs.version || 'v0.0.3' }}
+          name: FakturaVakt ${{ github.event.inputs.version || 'v0.0.3' }}
+          body: |
+            # FakturaVakt - تطبيق إدارة الفواتير
+            
+            ## 🎉 التحسينات في هذا الإصدار
+            
+            ### ✅ إصلاحات مهمة:
+            - **إصلاح مشكلة التعطل عند التشغيل** - تم إضافة قواعد ProGuard شاملة (168 سطر)
+            - **تحسين build.gradle** - إضافة MultiDex ومعالجة تعارضات الملفات
+            - **دعم جميع المكتبات الأصلية** - 15+ مكتبة محمية بشكل صحيح
+            
+            ### 🚀 الميزات:
+            - ✅ Hermes Engine للأداء الأمثل
+            - ✅ New Architecture React Native
+            - ✅ دعم RTL للعربية والسويدية
+            - ✅ إشعارات محلية
+            - ✅ مسح QR للفواتير
+            - ✅ إدارة المرفقات
+            - ✅ تخزين مشفر
+            
+            ### 📱 التثبيت:
+            1. قم بتحميل ملف `FakturaVakt-*.apk`
+            2. فعّل "مصادر غير معروفة" في إعدادات الأندرويد
+            3. قم بتثبيت التطبيق
+            
+            ### 📊 المتطلبات:
+            - Android 7.0 (API 24) أو أحدث
+            - 60 MB مساحة فارغة
+            - أذونات: الكاميرا، التخزين، الإشعارات
+            
+            ### 🐛 الإبلاغ عن المشاكل:
+            إذا واجهت أي مشكلة، يرجى:
+            - جمع السجلات: `adb logcat > error.log`
+            - فتح issue على GitHub
+            - تضمين إصدار الأندرويد ونموذج الجهاز
+            
+            ---
+            
+            **الحجم التقريبي:** ~50 MB  
+            **التوقيع:** Debug Keystore (للتطوير فقط)  
+            **البنيات المدعومة:** armeabi-v7a, arm64-v8a, x86, x86_64
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
