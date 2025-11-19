@@ -135,4 +135,11 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    
+    // Fix react-native-camera variant ambiguity
+    implementation(project(':react-native-camera')) {
+        attributes {
+            attribute(Attribute.of("react-native-camera", String.class), "general")
+        }
+    }
 }
