@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build and Release APK
 
 on:
   push:
@@ -9,19 +9,22 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v0.0.3)'
+        description: 'Version (e.g. 1.0.0)'
         required: false
-        default: 'latest'
+        default: '1.0.0'
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          fetch-depth: 0
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,98 +43,49 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
       
-      - name: Install dependencies
+      - name: Install Dependencies
         working-directory: FakturaVakt
         run: npm ci --legacy-peer-deps
       
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      
-      - name: Make gradlew executable
+      - name: Make Gradle Executable
         working-directory: FakturaVakt/android
-        run: chmod +x ./gradlew
-      
-      - name: Build Release APK
-        working-directory: FakturaVakt/android
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
-      
-      - name: Sign APK (optional - using debug keystore)
-        working-directory: FakturaVakt/android
+        run: chmod +x gradlew
+        
+      - name: Run Build Script
+        working-directory: FakturaVakt
         run: |
-          echo "APK built with debug keystore"
-          ls -lh app/build/outputs/apk/release/
+          chmod +x build-release.sh
+          ./build-release.sh
       
-      - name: Rename APK
+      - name: Get Version Info
+        id: version_info
+        working-directory: FakturaVakt
         run: |
-          VERSION="${{ github.event.inputs.version }}"
-          if [ "$VERSION" == "" ] || [ "$VERSION" == "latest" ]; then
-            VERSION="v0.0.3-$(date +%Y%m%d)"
-          fi
-          mv FakturaVakt/android/app/build/outputs/apk/release/app-release.apk \
-             FakturaVakt-${VERSION}.apk
-      
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: FakturaVakt-APK
-          path: FakturaVakt-*.apk
-          retention-days: 30
-      
+          APP_NAME=$(node -p "require('./app.json').expo.name || require('./app.json').name")
+          VERSION=$(node -p "require('./app.json').expo.version || require('./package.json').version")
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
       - name: Create Release
-        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         with:
-          files: FakturaVakt-*.apk
-          tag_name: ${{ github.event.inputs.version || 'v0.0.3' }}
-          name: FakturaVakt ${{ github.event.inputs.version || 'v0.0.3' }}
-          body: |
-            # FakturaVakt - تطبيق إدارة الفواتير
-            
-            ## 🎉 التحسينات في هذا الإصدار
-            
-            ### ✅ إصلاحات مهمة:
-            - **إصلاح مشكلة التعطل عند التشغيل** - تم إضافة قواعد ProGuard شاملة (168 سطر)
-            - **تحسين build.gradle** - إضافة MultiDex ومعالجة تعارضات الملفات
-            - **دعم جميع المكتبات الأصلية** - 15+ مكتبة محمية بشكل صحيح
-            
-            ### 🚀 الميزات:
-            - ✅ Hermes Engine للأداء الأمثل
-            - ✅ New Architecture React Native
-            - ✅ دعم RTL للعربية والسويدية
-            - ✅ إشعارات محلية
-            - ✅ مسح QR للفواتير
-            - ✅ إدارة المرفقات
-            - ✅ تخزين مشفر
-            
-            ### 📱 التثبيت:
-            1. قم بتحميل ملف `FakturaVakt-*.apk`
-            2. فعّل "مصادر غير معروفة" في إعدادات الأندرويد
-            3. قم بتثبيت التطبيق
-            
-            ### 📊 المتطلبات:
-            - Android 7.0 (API 24) أو أحدث
-            - 60 MB مساحة فارغة
-            - أذونات: الكاميرا، التخزين، الإشعارات
-            
-            ### 🐛 الإبلاغ عن المشاكل:
-            إذا واجهت أي مشكلة، يرجى:
-            - جمع السجلات: `adb logcat > error.log`
-            - فتح issue على GitHub
-            - تضمين إصدار الأندرويد ونموذج الجهاز
-            
-            ---
-            
-            **الحجم التقريبي:** ~50 MB  
-            **التوقيع:** Debug Keystore (للتطوير فقط)  
-            **البنيات المدعومة:** armeabi-v7a, arm64-v8a, x86, x86_64
+          tag_name: v${{ steps.version_info.outputs.VERSION }}
+          name: Release v${{ steps.version_info.outputs.VERSION }}
           draft: false
           prerelease: false
+          files: |
+            FakturaVakt/release_output/*.apk
+            FakturaVakt/release_output/*.aab
+          body: |
+            🚀 **Mise à jour / Update v${{ steps.version_info.outputs.VERSION }}**
+            
+            📱 **APK (Installation directe)** :
+            https://github.com/${{ github.repository }}/releases/download/v${{ steps.version_info.outputs.VERSION }}/${{ steps.version_info.outputs.APP_NAME }}-v${{ steps.version_info.outputs.VERSION }}.apk
+            
+            📦 **AAB (Google Play)** :
+            https://github.com/${{ github.repository }}/releases/download/v${{ steps.version_info.outputs.VERSION }}/${{ steps.version_info.outputs.APP_NAME }}-v${{ steps.version_info.outputs.VERSION }}.aab
+            
+            ✅ Construit automatiquement avec GitHub Actions.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
