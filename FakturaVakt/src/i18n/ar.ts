@@ -174,6 +174,13 @@ const ar = {
     futureDate: 'اختر تاريخاً مستقبلياً',
     invalidEmail: 'أدخل بريدًا إلكترونيًا صحيحًا',
   },
+  error: {
+    title: 'حدث خطأ',
+    message: 'حدث خطأ غير متوقع. يرجى إعادة المحاولة.',
+    retry: 'إعادة المحاولة',
+  },
+  qr_scanner_unavailable: 'ماسح QR غير متاح',
+  go_back: 'رجوع',
 };
 
 export default ar;

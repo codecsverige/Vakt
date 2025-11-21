@@ -9,6 +9,7 @@ import { ThemeProvider, useTheme } from './theme';
 import { ensureStorage } from './services/storage';
 import { notificationService } from './services/notificationService';
 import { useSettingsStore } from './store';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const Bootstrap: React.FC = () => {
   const { theme } = useTheme();
@@ -24,8 +25,11 @@ const Bootstrap: React.FC = () => {
       try {
         await ensureStorage();
         await notificationService.initialize();
-      } catch {
-        // Ignore failures during bootstrap; permissions might be denied.
+      } catch (error) {
+        // Log error for debugging - this helps identify crash causes
+        console.error('Initialization error:', error);
+        // Still set ready to true to allow app to continue
+        // User can retry later or app will handle gracefully
       } finally {
         setReady(true);
       }
@@ -56,9 +60,11 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 );
 
 const App: React.FC = () => (
-  <AppProviders>
-    <Bootstrap />
-  </AppProviders>
+  <ErrorBoundary>
+    <AppProviders>
+      <Bootstrap />
+    </AppProviders>
+  </ErrorBoundary>
 );
 
 export default App;

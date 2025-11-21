@@ -166,6 +166,13 @@ const en = {
     futureDate: 'Pick a future date',
     invalidEmail: 'Enter a valid email address',
   },
+  error: {
+    title: 'An Error Occurred',
+    message: 'An unexpected error occurred. Please try again.',
+    retry: 'Retry',
+  },
+  qr_scanner_unavailable: 'QR Scanner Unavailable',
+  go_back: 'Go Back',
 };
 
 export default en;
