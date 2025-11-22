@@ -31,11 +31,28 @@ fi
 
 # 3. Setup Android Environment (Specific for CI/CD or clean builds)
 echo "🔧 إعداد بيئة Android..."
+ANDROID_SDK_DIR="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+if [ -z "$ANDROID_SDK_DIR" ]; then
+    for candidate in "$HOME/Android/Sdk" "/usr/local/lib/android/sdk" "/opt/android-sdk" "/usr/lib/android-sdk"; do
+        if [ -d "$candidate" ]; then
+            ANDROID_SDK_DIR="$candidate"
+            break
+        fi
+    done
+fi
+
+if [ -n "$ANDROID_SDK_DIR" ]; then
+    cat <<EOF > android/local.properties
+sdk.dir=$ANDROID_SDK_DIR
+EOF
+    echo "✅ تم ضبط SDK على: $ANDROID_SDK_DIR"
+else
+    echo "⚠️ Android SDK غير موجود. قم بضبط ANDROID_SDK_ROOT/ANDROID_HOME قبل البناء."
+fi
+
 # On utilise le keystore de debug par défaut si release.jks n'existe pas pour que le build passe
 if [ ! -f "release.jks" ]; then
-    echo "⚠️ release.jks non trouvé, création d'un keystore temporaire..."
-    # keytool n'est peut-être pas dispo ici, on suppose que l'utilisateur l'a fait ou on utilise debug
-    # Pour ce script CI, on va laisser le build.gradle utiliser la config par défaut si pas de variable
+    echo "⚠️ release.jks non trouvé, utilisation du keystore debug par défaut..."
 fi
 
 # Nettoyage
