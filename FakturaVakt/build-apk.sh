@@ -72,6 +72,7 @@ echo -e "${GREEN}✓${NC} Build completed successfully!"
 echo ""
 
 APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
+AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
 
 if [ -f "$APK_PATH" ]; then
     APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
@@ -87,6 +88,17 @@ if [ -f "$APK_PATH" ]; then
     echo "To install on connected device:"
     echo -e "  ${YELLOW}adb install $APK_PATH${NC}"
     echo ""
+    APP_NAME=$(node -p "const app=require('./app.json'); app.expo?.name ?? app.name")
+    VERSION=$(node -p "const app=require('./app.json'); app.expo?.version ?? require('./package.json').version")
+    mkdir -p release_output
+    DEST_APK="release_output/${APP_NAME}-v${VERSION}.apk"
+    cp "$APK_PATH" "$DEST_APK"
+    echo "Copied APK to $DEST_APK"
+    if [ -f "$AAB_PATH" ]; then
+        DEST_AAB="release_output/${APP_NAME}-v${VERSION}.aab"
+        cp "$AAB_PATH" "$DEST_AAB"
+        echo "Copied AAB to $DEST_AAB"
+    fi
 else
     echo "======================================"
     echo -e "${RED}ERROR!${NC}"
