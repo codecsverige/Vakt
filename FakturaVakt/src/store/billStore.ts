@@ -78,8 +78,7 @@ const buildBill = (input: BillInput): Bill => {
 };
 
 export const useBillStore = create<BillState>()(
-  devtools(
-    persist(
+  persist(
       (set, get) => ({
         bills: [],
         addBill: (input) => {
@@ -271,5 +270,4 @@ export const useBillStore = create<BillState>()(
         }),
       },
     ),
-  ),
 );
