@@ -82,12 +82,9 @@ android {
         applicationId "com.fakturavakt"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "0.0.3"
         multiDexEnabled true
-        
-        // Fix react-native-camera variant ambiguity
-        missingDimensionStrategy 'react-native-camera', 'general'
     }
     
     packagingOptions {

@@ -55,9 +55,8 @@
 -keep class com.MMKV.** { *; }
 -keep class com.tencent.mmkv.** { *; }
 
-# React Native Camera
--keep class com.lwansbrough.RCTCamera.** { *; }
--keep class org.reactnative.camera.** { *; }
+# React Native Image Picker (actual library being used)
+-keep class com.imagepicker.** { *; }
 -keepclassmembers class * {
     @com.facebook.react.uimanager.annotations.ReactProp <methods>;
 }
