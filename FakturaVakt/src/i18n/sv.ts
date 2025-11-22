@@ -166,6 +166,13 @@ const sv = {
     futureDate: 'Välj ett framtida datum',
     invalidEmail: 'Ange en giltig e-postadress',
   },
+  error: {
+    title: 'Ett fel uppstod',
+    message: 'Ett oväntat fel uppstod. Försök igen.',
+    retry: 'Försök igen',
+  },
+  qr_scanner_unavailable: 'QR-scanner inte tillgänglig',
+  go_back: 'Gå tillbaka',
 };
 
 export default sv;
