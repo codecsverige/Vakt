@@ -4,7 +4,7 @@
 
 import { AppRegistry, LogBox } from 'react-native';
 import React from 'react';
-import DiagnosticApp from './src/DiagnosticApp';
+import MainApp from './src/MainApp';
 import ErrorBoundary from './src/ErrorBoundary';
 import { name as appName } from './app.json';
 
@@ -28,7 +28,7 @@ global.ErrorUtils.setGlobalHandler(errorHandler);
 // Wrap app with error boundary
 const AppWithErrorBoundary = () => (
   <ErrorBoundary>
-    <DiagnosticApp />
+    <MainApp />
   </ErrorBoundary>
 );
 

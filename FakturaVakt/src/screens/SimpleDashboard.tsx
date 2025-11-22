@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Bill } from '../MainApp';
+import { Bill, ScreenType } from '../MainApp';
 
 interface Props {
   bills: Bill[];
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: ScreenType) => void;
 }
 
 const SimpleDashboard: React.FC<Props> = ({ bills, onNavigate }) => {

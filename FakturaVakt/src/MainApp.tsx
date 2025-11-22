@@ -14,8 +14,8 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 
 // Screens
 import DashboardScreen from './screens/SimpleDashboard';
-import UpcomingScreen from './screens/SimpleUpcoming';
-import BillFormScreen from './screens/SimpleBillForm';
+import UpcomingScreen from './screens/UpcomingBills';
+import BillFormScreen from './screens/BillForm';
 
 // Types
 export type ScreenType = 'dashboard' | 'upcoming' | 'billForm' | 'archive' | 'settings';
