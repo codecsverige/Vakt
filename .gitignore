@@ -1,0 +1,36 @@
+# APK files
+*.apk
+*.aab
+
+# Android build
+FakturaVakt/android/app/build/
+FakturaVakt/android/build/
+FakturaVakt/android/.gradle/
+FakturaVakt/android/local.properties
+
+# Node modules
+FakturaVakt/node_modules/
+
+# Metro
+.metro-health-check*
+/tmp/metro-*
+
+# iOS
+FakturaVakt/ios/Pods/
+FakturaVakt/ios/build/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

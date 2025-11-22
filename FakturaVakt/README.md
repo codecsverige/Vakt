@@ -1,76 +1,63 @@
 # FakturaVakt
 
-FakturaVakt is a React Native application for managing and tracking invoices.
+FakturaVakt is a React Native bill management application.
 
-## Features
+## 🚀 Quick Start - Build APK
 
-- Invoice management and tracking
-- QR code scanning for invoices
-- Payment extension requests
-- Multi-language support (English, Swedish, Arabic)
-- Dark mode support
-- Secure storage for invoice data
-
-## Download
-
-Download the latest version of FakturaVakt APK from the [releases page](https://github.com/codecsverige/Vakt/releases).
-
-**Latest Version**: v0.0.2 (November 22, 2024) - Fixed crash issues on app launch
-
-## Development
-
-### Prerequisites
-
-- Node.js 20+
-- React Native development environment
-- Android Studio (for Android development)
-- Xcode (for iOS development)
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-
-3. For iOS:
-   ```bash
-   cd ios && pod install
-   ```
-
-### Building the APK
-
-To build a release APK:
 ```bash
-./build-apk.sh
+cd /workspace/FakturaVakt && export ANDROID_HOME=~/android-sdk && ./build-apk.sh
 ```
 
-The APK will be generated in `android/app/build/outputs/apk/release/app-release.apk`
+**APK Location**: `android/app/build/outputs/apk/release/app-release.apk`
 
-### Running in Development
+## 📱 Features
 
-Android:
+- ✅ Bill management (add, edit, delete)
+- ✅ Dashboard with statistics
+- ✅ Upcoming bills with due dates
+- ✅ Secure encrypted storage
+- ✅ Bill categorization
+- 🔜 QR code scanning
+- 🔜 Multi-language support (AR/SV/EN)
+- 🔜 Notifications
+
+## ⚠️ Important: Forbidden Libraries
+
+**NEVER install these libraries** (they cause crashes):
+- `react-native-reanimated`
+- `@react-navigation/*`
+- `react-native-screens`
+- `react-native-gesture-handler`
+- `react-native-mmkv`
+- `victory-native`
+
+## 🛠️ Development
+
+### Prerequisites
+- Node.js 20+
+- Android SDK in `~/android-sdk`
+
+### Installation
+```bash
+npm install --legacy-peer-deps
+```
+
+### Run Development
 ```bash
 npm run android
 ```
 
-iOS:
-```bash
-npm run ios
-```
+## 📋 Project Info
 
-## Technologies Used
+- React Native: 0.74.5
+- Min Android: API 24 (7.0)
+- Gradle: 8.7
+- Build Time: ~45 seconds
 
-- React Native 0.74.5
-- React Navigation
-- React Hook Form
-- Zustand (state management)
-- React Native Encrypted Storage
-- i18n for internationalization
-- React Native Reanimated
-- React Native SVG
+## 🔗 Downloads
 
-## License
+Latest APK: [GitHub Releases](https://github.com/codecsverige/Vakt/releases)
 
-This project is private and proprietary.
+---
+
+For detailed build instructions, see `/workspace/BUILD_APK_GUIDE.md`
