@@ -18,7 +18,7 @@ import UpcomingScreen from './screens/UpcomingBills';
 import BillFormScreen from './screens/BillForm';
 
 // Types
-export type ScreenType = 'dashboard' | 'upcoming' | 'billForm' | 'archive' | 'settings';
+export type ScreenType = 'dashboard' | 'fakturor' | 'abonnemang' | 'vab' | 'avtal' | 'statistik' | 'notiser' | 'installningar' | 'billForm';
 
 export interface Bill {
   id: string;
@@ -35,6 +35,7 @@ const MainApp: React.FC = () => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     loadBills();
@@ -103,7 +104,7 @@ const MainApp: React.FC = () => {
             onNavigate={setCurrentScreen}
           />
         );
-      case 'upcoming':
+      case 'fakturor':
         return (
           <UpcomingScreen 
             bills={bills}
@@ -122,22 +123,50 @@ const MainApp: React.FC = () => {
             onSave={addBill}
             onCancel={() => {
               setSelectedBill(null);
-              setCurrentScreen('upcoming');
+              setCurrentScreen('fakturor');
             }}
           />
         );
-      case 'archive':
+      case 'abonnemang':
         return (
           <View style={styles.screenContainer}>
-            <Text style={styles.screenTitle}>Archive</Text>
-            <Text style={styles.comingSoon}>Coming Soon...</Text>
+            <Text style={styles.screenTitle}>Abonnemang</Text>
+            <Text style={styles.comingSoon}>Kommer snart...</Text>
           </View>
         );
-      case 'settings':
+      case 'vab':
         return (
           <View style={styles.screenContainer}>
-            <Text style={styles.screenTitle}>Settings</Text>
-            <Text style={styles.comingSoon}>Coming Soon...</Text>
+            <Text style={styles.screenTitle}>VAB & Barn</Text>
+            <Text style={styles.comingSoon}>Kommer snart...</Text>
+          </View>
+        );
+      case 'avtal':
+        return (
+          <View style={styles.screenContainer}>
+            <Text style={styles.screenTitle}>Avtal & Garantier</Text>
+            <Text style={styles.comingSoon}>Kommer snart...</Text>
+          </View>
+        );
+      case 'statistik':
+        return (
+          <View style={styles.screenContainer}>
+            <Text style={styles.screenTitle}>Statistik</Text>
+            <Text style={styles.comingSoon}>Kommer snart...</Text>
+          </View>
+        );
+      case 'notiser':
+        return (
+          <View style={styles.screenContainer}>
+            <Text style={styles.screenTitle}>Notiser</Text>
+            <Text style={styles.comingSoon}>Kommer snart...</Text>
+          </View>
+        );
+      case 'installningar':
+        return (
+          <View style={styles.screenContainer}>
+            <Text style={styles.screenTitle}>Inställningar</Text>
+            <Text style={styles.comingSoon}>Kommer snart...</Text>
           </View>
         );
       default:
@@ -145,41 +174,59 @@ const MainApp: React.FC = () => {
     }
   };
 
-  const renderBottomTab = () => {
-    const tabs: Array<{ id: ScreenType; label: string; icon: string }> = [
-      { id: 'dashboard', label: 'Dashboard', icon: 'home-outline' },
-      { id: 'upcoming', label: 'Upcoming', icon: 'calendar-outline' },
-      { id: 'billForm', label: 'Add', icon: 'add-circle-outline' },
-      { id: 'archive', label: 'Archive', icon: 'archive-outline' },
-      { id: 'settings', label: 'Settings', icon: 'settings-outline' }
+  const renderMenu = () => {
+    const menuItems: Array<{ id: ScreenType; label: string; icon: string }> = [
+      { id: 'dashboard', label: 'Översikt', icon: 'home-outline' },
+      { id: 'fakturor', label: 'Fakturor', icon: 'document-text-outline' },
+      { id: 'abonnemang', label: 'Abonnemang', icon: 'refresh-outline' },
+      { id: 'vab', label: 'VAB & Barn', icon: 'people-outline' },
+      { id: 'avtal', label: 'Avtal & Garantier', icon: 'folder-outline' },
+      { id: 'statistik', label: 'Statistik', icon: 'bar-chart-outline' },
+      { id: 'notiser', label: 'Notiser', icon: 'notifications-outline' },
+      { id: 'installningar', label: 'Inställningar', icon: 'settings-outline' }
     ];
 
+    if (!showMenu) return null;
+
     return (
-      <View style={styles.bottomTab}>
-        {tabs.map(tab => (
-          <TouchableOpacity
-            key={tab.id}
-            style={styles.tabButton}
-            onPress={() => {
-              if (tab.id === 'billForm') {
-                setSelectedBill(null);
-              }
-              setCurrentScreen(tab.id);
-            }}
-          >
-            <Icon 
-              name={tab.icon} 
-              size={24} 
-              color={currentScreen === tab.id ? '#0F7BFF' : '#8E8E93'}
-            />
-            <Text style={[
-              styles.tabLabel,
-              currentScreen === tab.id && styles.activeTabLabel
-            ]}>
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      <View style={styles.menuOverlay}>
+        <TouchableOpacity 
+          style={styles.menuBackdrop} 
+          activeOpacity={1} 
+          onPress={() => setShowMenu(false)}
+        />
+        <View style={styles.menuContainer}>
+          <View style={styles.menuHeader}>
+            <Text style={styles.menuTitle}>FakturaVakt</Text>
+            <TouchableOpacity onPress={() => setShowMenu(false)}>
+              <Icon name="close" size={30} color="#333333" />
+            </TouchableOpacity>
+          </View>
+          <ScrollView>
+            {menuItems.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.menuItem}
+                onPress={() => {
+                  setCurrentScreen(item.id);
+                  setShowMenu(false);
+                }}
+              >
+                <Icon 
+                  name={item.icon} 
+                  size={24} 
+                  color={currentScreen === item.id ? '#0F7BFF' : '#666666'}
+                />
+                <Text style={[
+                  styles.menuItemText,
+                  currentScreen === item.id && styles.activeMenuItemText
+                ]}>
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       </View>
     );
   };
@@ -188,6 +235,9 @@ const MainApp: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => setShowMenu(true)}>
+          <Icon name="menu-outline" size={30} color="#333333" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>FakturaVakt</Text>
         <TouchableOpacity>
           <Icon name="notifications-outline" size={24} color="#333333" />
@@ -196,7 +246,7 @@ const MainApp: React.FC = () => {
       <View style={styles.content}>
         {renderScreen()}
       </View>
-      {renderBottomTab()}
+      {renderMenu()}
     </SafeAreaView>
   );
 };
@@ -224,25 +274,65 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  bottomTab: {
-    flexDirection: 'row',
+  menuOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+  },
+  menuBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: '80%',
     backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    paddingBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
-  tabButton: {
-    flex: 1,
+  menuHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
-  tabLabel: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 4,
+  menuTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333333',
   },
-  activeTabLabel: {
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  menuItemText: {
+    fontSize: 16,
+    color: '#666666',
+    marginLeft: 15,
+  },
+  activeMenuItemText: {
     color: '#0F7BFF',
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,

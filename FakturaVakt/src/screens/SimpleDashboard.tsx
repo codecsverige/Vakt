@@ -31,36 +31,36 @@ const SimpleDashboard: React.FC<Props> = ({ bills, onNavigate }) => {
         <View style={[styles.statCard, { backgroundColor: '#FFE5E5' }]}>
           <Icon name="alert-circle-outline" size={32} color="#F35D4F" />
           <Text style={styles.statValue}>{upcomingCount}</Text>
-          <Text style={styles.statLabel}>Unpaid Bills</Text>
+          <Text style={styles.statLabel}>Obetalda fakturor</Text>
         </View>
 
         <View style={[styles.statCard, { backgroundColor: '#E5F2FF' }]}>
           <Icon name="cash-outline" size={32} color="#0F7BFF" />
           <Text style={styles.statValue}>{formatCurrency(totalUnpaid)}</Text>
-          <Text style={styles.statLabel}>Total Amount</Text>
+          <Text style={styles.statLabel}>Totalt belopp</Text>
         </View>
       </View>
 
       <View style={[styles.statCard, { backgroundColor: '#E5FFE5', marginHorizontal: 20 }]}>
         <Icon name="checkmark-circle-outline" size={32} color="#2DB784" />
         <Text style={styles.statValue}>{paidCount}</Text>
-        <Text style={styles.statLabel}>Paid This Month</Text>
+        <Text style={styles.statLabel}>Betalda denna månad</Text>
       </View>
 
-      <TouchableOpacity 
-        style={styles.actionButton}
-        onPress={() => onNavigate('upcoming')}
-      >
-        <Icon name="list-outline" size={24} color="#FFFFFF" />
-        <Text style={styles.actionButtonText}>View All Bills</Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => onNavigate('fakturor')}
+        >
+          <Icon name="list-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.actionButtonText}>Visa alla fakturor</Text>
+        </TouchableOpacity>
 
       <TouchableOpacity 
         style={[styles.actionButton, styles.secondaryButton]}
         onPress={() => onNavigate('billForm')}
       >
         <Icon name="add-circle-outline" size={24} color="#0F7BFF" />
-        <Text style={[styles.actionButtonText, { color: '#0F7BFF' }]}>Add New Bill</Text>
+        <Text style={[styles.actionButtonText, { color: '#0F7BFF' }]}>Lägg till ny faktura</Text>
       </TouchableOpacity>
     </ScrollView>
   );
