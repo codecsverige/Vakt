@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { VictoryPie } from 'victory-native';
 import { useTranslation } from 'react-i18next';
 import StatCard from '../components/StatCard';
 import SectionHeader from '../components/SectionHeader';
@@ -59,19 +58,19 @@ const DashboardScreen: React.FC = () => {
             title={t('screens.dashboard.noData')}
           />
         ) : (
-          <VictoryPie
-            data={chartData}
-            colorScale={['#0F7BFF', '#8C5AE3', '#2DB784', '#FFB547', '#F35D4F']}
-            innerRadius={60}
-            padAngle={2}
-            style={{
-              labels: {
-                fill: theme.colors.text,
-                fontSize: 12,
-              },
-            }}
-            height={260}
-          />
+          <View style={styles.categoriesContainer}>
+            {chartData.map((item, index) => (
+              <View key={index} style={[styles.categoryItem, { backgroundColor: theme.colors.surface }]}>
+                <View style={[styles.categoryColor, { backgroundColor: ['#0F7BFF', '#8C5AE3', '#2DB784', '#FFB547', '#F35D4F'][index % 5] }]} />
+                <View style={styles.categoryInfo}>
+                  <Text style={[styles.categoryName, { color: theme.colors.text }]}>{item.x}</Text>
+                  <Text style={[styles.categoryAmount, { color: theme.colors.textSecondary }]}>
+                    {formatCurrency(item.y, 'SEK', i18n.language)}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
         )}
       </View>
 
@@ -133,6 +132,33 @@ const styles = StyleSheet.create({
   indicatorLabel: {
     marginTop: 8,
     fontSize: 14,
+  },
+  categoriesContainer: {
+    marginTop: 8,
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    marginBottom: 8,
+    borderRadius: 8,
+  },
+  categoryColor: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  categoryInfo: {
+    flex: 1,
+  },
+  categoryName: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  categoryAmount: {
+    fontSize: 12,
   },
 });
 
