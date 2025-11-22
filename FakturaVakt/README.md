@@ -60,4 +60,4 @@ Latest APK: [GitHub Releases](https://github.com/codecsverige/Vakt/releases)
 
 ---
 
-For detailed build instructions, see `/workspace/BUILD_APK_GUIDE.md`
+For detailed build instructions, see `BUILD_APK_GUIDE.md`
