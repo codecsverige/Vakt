@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,8 +13,10 @@ import { Bill } from '../MainApp';
 
 interface Props {
   bill?: Bill | null;
+  scannedData?: any;
   onSave: (bill: Omit<Bill, 'id' | 'isPaid'>) => void;
   onCancel: () => void;
+  onScan?: () => void;
 }
 
 const categories = [
@@ -28,12 +30,32 @@ const categories = [
   'Other'
 ];
 
-const BillForm: React.FC<Props> = ({ bill, onSave, onCancel }) => {
+const BillForm: React.FC<Props> = ({ bill, scannedData, onSave, onCancel, onScan }) => {
   const [title, setTitle] = useState(bill?.title || '');
   const [amount, setAmount] = useState(bill?.amount?.toString() || '');
   const [category, setCategory] = useState(bill?.category || 'Other');
   const [dueDate, setDueDate] = useState(bill?.dueDate || new Date().toISOString().split('T')[0]);
   const [currency] = useState(bill?.currency || 'SEK');
+
+  // Update form when scanned data is received
+  useEffect(() => {
+    if (scannedData) {
+      setTitle(scannedData.title || scannedData.companyName || '');
+      setAmount(scannedData.amount?.toString() || '');
+      setDueDate(scannedData.dueDate || new Date().toISOString().split('T')[0]);
+      // Try to guess category from company name
+      if (scannedData.companyName) {
+        const name = scannedData.companyName.toLowerCase();
+        if (name.includes('telia') || name.includes('telenor') || name.includes('tre')) {
+          setCategory('Phone');
+        } else if (name.includes('vattenfall') || name.includes('eon')) {
+          setCategory('Electricity');
+        } else if (name.includes('bredband') || name.includes('comhem')) {
+          setCategory('Internet');
+        }
+      }
+    }
+  }, [scannedData]);
 
   const handleSave = () => {
     if (!title.trim()) {
@@ -60,6 +82,13 @@ const BillForm: React.FC<Props> = ({ bill, onSave, onCancel }) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{bill ? 'Edit Bill' : 'New Bill'}</Text>
       </View>
+
+      {onScan && !bill && (
+        <TouchableOpacity style={styles.scanButton} onPress={onScan}>
+          <Icon name="scan-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.scanButtonText}>Skanna faktura</Text>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.form}>
         <View style={styles.inputGroup}>
@@ -236,6 +265,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '500',
     marginLeft: 8,
+  },
+  scanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2DB784',
+    marginHorizontal: 20,
+    marginVertical: 10,
+    paddingVertical: 14,
+    borderRadius: 10,
+  },
+  scanButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    marginLeft: 10,
   },
 });
 

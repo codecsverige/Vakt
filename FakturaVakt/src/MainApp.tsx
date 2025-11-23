@@ -16,9 +16,10 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import DashboardScreen from './screens/SimpleDashboard';
 import UpcomingScreen from './screens/UpcomingBills';
 import BillFormScreen from './screens/BillForm';
+import InvoiceScanner from './screens/InvoiceScanner';
 
 // Types
-export type ScreenType = 'hem' | 'fakturor' | 'abonnemang' | 'kontrakt' | 'profil' | 'billForm';
+export type ScreenType = 'hem' | 'fakturor' | 'abonnemang' | 'kontrakt' | 'profil' | 'billForm' | 'scanner';
 
 export interface Bill {
   id: string;
@@ -35,6 +36,7 @@ const MainApp: React.FC = () => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [scannedData, setScannedData] = useState<any>(null);
 
   useEffect(() => {
     loadBills();
@@ -119,11 +121,17 @@ const MainApp: React.FC = () => {
         return (
           <BillFormScreen
             bill={selectedBill}
-            onSave={addBill}
+            scannedData={scannedData}
+            onSave={(data) => {
+              addBill(data);
+              setScannedData(null);
+            }}
             onCancel={() => {
               setSelectedBill(null);
+              setScannedData(null);
               setCurrentScreen('fakturor');
             }}
+            onScan={() => setCurrentScreen('scanner')}
           />
         );
       case 'abonnemang':
@@ -150,6 +158,16 @@ const MainApp: React.FC = () => {
             <Text style={styles.comingSoon}>Kommer snart...</Text>
           </View>
         );
+      case 'scanner':
+        return (
+          <InvoiceScanner
+            onScanComplete={(data) => {
+              setScannedData(data);
+              setCurrentScreen('billForm');
+            }}
+            onCancel={() => setCurrentScreen('billForm')}
+          />
+        );
       default:
         return null;
     }
@@ -164,8 +182,8 @@ const MainApp: React.FC = () => {
       { id: 'profil' as ScreenType, label: 'Profil', icon: 'person-outline', iconActive: 'person' }
     ];
 
-    // Don't show bottom navigation when in bill form
-    if (currentScreen === 'billForm') {
+    // Don't show bottom navigation when in bill form or scanner
+    if (currentScreen === 'billForm' || currentScreen === 'scanner') {
       return null;
     }
 
@@ -200,7 +218,7 @@ const MainApp: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      {currentScreen !== 'billForm' && (
+      {currentScreen !== 'billForm' && currentScreen !== 'scanner' && (
         <View style={styles.header}>
           <Text style={styles.headerTitle}>FakturaVakt</Text>
           <TouchableOpacity>
