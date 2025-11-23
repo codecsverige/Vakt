@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.0] - 2024-12-19
+
+### Added ✨
+- **Invoice Scanner with OCR**: Complete invoice scanning feature with text extraction
+- Camera and gallery support for capturing invoices
+- Smart OCR parser optimized for Swedish invoices
+- Automatic extraction of company name, amount, due date, OCR number, and Bankgiro
+- Manual text input option for OCR processing
+- Auto-fill bill form with scanned data
+- Intelligent category detection based on company names
+- Scan button in new bill form for quick access
+
+### Technical
+- Integrated react-native-image-picker for camera functionality
+- Created InvoiceParser service with Swedish format support
+- Added InvoiceScanner screen component
+- Enhanced BillForm to accept scanned data
+
 ## [0.0.8] - 2024-11-22
 
 ### Added
