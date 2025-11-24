@@ -7,9 +7,11 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Bill } from '../MainApp';
+import ScanBillScreen from './ScanBillScreen';
 
 interface Props {
   bill?: Bill | null;
@@ -34,6 +36,7 @@ const BillForm: React.FC<Props> = ({ bill, onSave, onCancel }) => {
   const [category, setCategory] = useState(bill?.category || 'Other');
   const [dueDate, setDueDate] = useState(bill?.dueDate || new Date().toISOString().split('T')[0]);
   const [currency] = useState(bill?.currency || 'SEK');
+  const [showScanner, setShowScanner] = useState(false);
 
   const handleSave = () => {
     if (!title.trim()) {
@@ -55,88 +58,115 @@ const BillForm: React.FC<Props> = ({ bill, onSave, onCancel }) => {
     });
   };
 
+  const handleScanSuccess = (data: any) => {
+    setShowScanner(false);
+    if (data.amount) setAmount(data.amount.toString());
+    if (data.dueDate) setDueDate(data.dueDate);
+    if (data.title && data.title !== "Scanned Bill") setTitle(data.title);
+    
+    // Show success message
+    Alert.alert("Scanning Successful", "Form updated with scanned data!");
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{bill ? 'Edit Bill' : 'New Bill'}</Text>
-      </View>
+    <>
+      <Modal visible={showScanner} animationType="slide" onRequestClose={() => setShowScanner(false)}>
+        <ScanBillScreen 
+          onScanSuccess={handleScanSuccess}
+          onClose={() => setShowScanner(false)}
+        />
+      </Modal>
 
-      <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Title</Text>
-          <TextInput
-            style={styles.input}
-            value={title}
-            onChangeText={setTitle}
-            placeholder="e.g., Electricity Bill"
-            placeholderTextColor="#999999"
-          />
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{bill ? 'Edit Bill' : 'New Bill'}</Text>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Amount ({currency})</Text>
-          <TextInput
-            style={styles.input}
-            value={amount}
-            onChangeText={setAmount}
-            placeholder="0.00"
-            keyboardType="decimal-pad"
-            placeholderTextColor="#999999"
-          />
-        </View>
+        <View style={styles.form}>
+          <TouchableOpacity 
+            style={styles.scanButton}
+            onPress={() => setShowScanner(true)}
+          >
+            <Icon name="qr-code-outline" size={24} color="#FFFFFF" />
+            <Text style={styles.scanButtonText}>Scan Bill (QR)</Text>
+          </TouchableOpacity>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Category</Text>
-          <View style={styles.categoryGrid}>
-            {categories.map(cat => (
-              <TouchableOpacity
-                key={cat}
-                style={[
-                  styles.categoryButton,
-                  category === cat && styles.categoryButtonActive
-                ]}
-                onPress={() => setCategory(cat)}
-              >
-                <Text style={[
-                  styles.categoryButtonText,
-                  category === cat && styles.categoryButtonTextActive
-                ]}>
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Title</Text>
+            <TextInput
+              style={styles.input}
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g., Electricity Bill"
+              placeholderTextColor="#999999"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Amount ({currency})</Text>
+            <TextInput
+              style={styles.input}
+              value={amount}
+              onChangeText={setAmount}
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+              placeholderTextColor="#999999"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Category</Text>
+            <View style={styles.categoryGrid}>
+              {categories.map(cat => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.categoryButton,
+                    category === cat && styles.categoryButtonActive
+                  ]}
+                  onPress={() => setCategory(cat)}
+                >
+                  <Text style={[
+                    styles.categoryButtonText,
+                    category === cat && styles.categoryButtonTextActive
+                  ]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Due Date</Text>
+            <TextInput
+              style={styles.input}
+              value={dueDate}
+              onChangeText={setDueDate}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor="#999999"
+            />
           </View>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Due Date</Text>
-          <TextInput
-            style={styles.input}
-            value={dueDate}
-            onChangeText={setDueDate}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor="#999999"
-          />
+        <View style={styles.actions}>
+          <TouchableOpacity 
+            style={[styles.button, styles.cancelButton]}
+            onPress={onCancel}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.button, styles.saveButton]}
+            onPress={handleSave}
+          >
+            <Icon name="checkmark" size={20} color="#FFFFFF" />
+            <Text style={styles.saveButtonText}>Save Bill</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-
-      <View style={styles.actions}>
-        <TouchableOpacity 
-          style={[styles.button, styles.cancelButton]}
-          onPress={onCancel}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.button, styles.saveButton]}
-          onPress={handleSave}
-        >
-          <Icon name="checkmark" size={20} color="#FFFFFF" />
-          <Text style={styles.saveButtonText}>Save Bill</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 
@@ -158,6 +188,26 @@ const styles = StyleSheet.create({
   },
   form: {
     padding: 20,
+  },
+  scanButton: {
+    backgroundColor: '#333333',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 25,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  scanButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   inputGroup: {
     marginBottom: 24,
@@ -208,6 +258,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     paddingTop: 0,
+    marginBottom: 20,
   },
   button: {
     flex: 1,
